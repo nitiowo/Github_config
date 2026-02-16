@@ -1,0 +1,13 @@
+name: silva_dada2_r
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base>=4.3
+  - r-taxize
+  - r-dplyr
+  - r-stringr
+  - r-yaml
+  - bioconductor-biostrings
+  - r-rentrez

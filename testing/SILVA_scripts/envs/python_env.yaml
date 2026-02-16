@@ -1,0 +1,10 @@
+name: silva_dada2_py
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - biopython>=1.81
+  - pyyaml
+  - pandas
