@@ -18,16 +18,3 @@ The analysis pipeline and its accompanying scripts are documented and organized 
 - **`zoop_functions_Version7.R`** - Custom functions for data manipulation and visualization
 
 Additional analysis modules include geographic patterns, focal taxon analyses, heatmaps, rarefaction curves, overlap analyses, variance partitioning, and ground truth comparisons. See `cheatsheet.md` for detailed documentation on available objects, control options, and common usage patterns.
-
-## Notes on provenance and visibility
-
-- This repository may be updated using manual edits, automation, or AI-assisted tools (for example, GitHub Copilot or other agents). When changes are pushed to a remote Git hosting service (such as GitHub), the visibility of AI involvement depends on the metadata included with the commit and any associated pull request (author/committer fields, commit message, and PR description).
-
-- The purpose of this small README edit is to support an experiment comparing visibility of AI-assisted changes when made via different interfaces (e.g., GitHub Chat/Copilot Agent vs. local edits in VS Code). After pushing a test branch with this change, examine the remote commit and PR to determine what information about AI assistance is visible to collaborators or the public.
-
-- Suggested next steps:
-	- Commit this change to a new test branch and push to the remote.
-	- Open a pull request and inspect the PR timeline, commit metadata, and any UI indicators that reference AI-assisted suggestions or automated tooling.
-	- Optionally take screenshots or export the PR timeline for documentation.
-
-If you want, I can commit this change here locally (with a branch and commit message) and help you push it to a remote test branch and open a PR so you can observe the visibility differences.
