@@ -52,6 +52,15 @@ def parse_silva_header(description):
     return accession, ranks
 
 
+def parse_silva_notax_header(description, _counter=[0]):
+    """Parse taxonomy-only SILVA header: >Rank1;Rank2;...;RankN (no accession).
+    Synthesises a sequential placeholder accession (seq_00001, seq_00002, ...)."""
+    _counter[0] += 1
+    accession = f"seq_{_counter[0]:05d}"
+    ranks = [r.strip() for r in description.rstrip(";").split(";") if r.strip()]
+    return accession, ranks
+
+
 def parse_bold_header(description):
     """Parse BOLD header: >AANIC174-10|COI-5P|Australia|Animalia,Arthropoda,..."""
     parts = description.split("|")
@@ -66,9 +75,12 @@ def parse_bold_header(description):
 
 
 def parse_header(description, fmt="silva"):
-    """Universal parser. Returns (accession, [rank1, rank2, ...])."""
+    """Universal parser. Returns (accession, [rank1, rank2, ...]).
+    Supported formats: 'silva', 'silva_notax', 'bold'."""
     if fmt == "bold":
         return parse_bold_header(description)
+    elif fmt == "silva_notax":
+        return parse_silva_notax_header(description)
     else:
         return parse_silva_header(description)
 
@@ -187,6 +199,7 @@ log_lines += [
     "",
     "NOTE: All output files are in SILVA format regardless of input format.",
     f"  Header format: >ACCESSION Rank1;Rank2;...;RankN",
+    f"  (For 'silva_notax' inputs, ACCESSION is a synthetic placeholder: seq_00001, seq_00002, ...)",
 ]
 
 summary = "\n".join(log_lines)

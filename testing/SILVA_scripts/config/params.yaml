@@ -1,6 +1,6 @@
 # ── Input files ──────────────────────────────────────────────
-database_format: "silva"           # Options: "silva" or "bold"
-input_primary: "00_raw/silva_protostome_refs.fasta"
+database_format: "silva_notax"           # Options: "silva", "silva_notax", or "bold"
+input_primary: "00_raw/DADA2_EUK_SSU_v2.0.fasta"
 input_secondary: ""                # Optional: leave empty ("") to skip
 target_classes_file: "config/target_classes.txt"
 

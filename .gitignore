@@ -62,3 +62,7 @@ rsconnect/
 
 # Old/deprecated
 **/*old*
+
+# Testing
+**/test_*
+**/*.testing*
