@@ -462,6 +462,15 @@ run_simper_analysis <- function(ps, group_var = "Lake",
   ps_agg <- agg_rank(ps, rank) %>% subset_taxa_custom(tsub)
   otu <- as(otu_table(ps_agg), "matrix")
   if (taxa_are_rows(ps_agg)) otu <- t(otu)
+
+  # relabel columns from ASV IDs to taxon names
+  tt <- data.frame(tax_table(ps_agg), stringsAsFactors = FALSE)
+  if (rank %in% colnames(tt)) {
+    tax_names_vec <- tt[[rank]][match(colnames(otu), rownames(tt))]
+    tax_names_vec[is.na(tax_names_vec)] <- colnames(otu)[is.na(tax_names_vec)]
+    colnames(otu) <- make.unique(tax_names_vec)
+  }
+
   meta <- data.frame(sample_data(ps_agg))
   sim <- simper(otu, meta[[group_var]], permutations = 99)
   summ <- lapply(names(summary(sim)), function(comp) {
@@ -477,6 +486,15 @@ run_indicator <- function(ps, group_var = "Lake", rank = "Genus", tsub = NULL) {
   ps_agg <- agg_rank(ps, rank) %>% subset_taxa_custom(tsub)
   otu <- as(otu_table(ps_agg), "matrix")
   if (taxa_are_rows(ps_agg)) otu <- t(otu)
+
+  # relabel columns from ASV IDs to taxon names
+  tt <- data.frame(tax_table(ps_agg), stringsAsFactors = FALSE)
+  if (rank %in% colnames(tt)) {
+    tax_names_vec <- tt[[rank]][match(colnames(otu), rownames(tt))]
+    tax_names_vec[is.na(tax_names_vec)] <- colnames(otu)[is.na(tax_names_vec)]
+    colnames(otu) <- make.unique(tax_names_vec)
+  }
+
   meta <- data.frame(sample_data(ps_agg))
   multipatt(otu, meta[[group_var]], func = "IndVal.g",
             control = how(nperm = 999))
@@ -688,6 +706,14 @@ run_varpart <- function(ps, env_vars, spatial_vars = NULL, binary = TRUE) {
     else as.numeric(x)
   }))
   env_df[is.na(env_df)] <- 0
+
+  # drop constant columns (e.g. Mesh when all samples share one level)
+  const_cols <- sapply(env_df, function(x) length(unique(x)) < 2)
+  if (any(const_cols)) {
+    cat("  dropping constant env variables:", paste(names(env_df)[const_cols], collapse = ", "), "\n")
+    env_df <- env_df[, !const_cols, drop = FALSE]
+  }
+  if (ncol(env_df) == 0) { cat("  no variable env predictors remain\n"); return(NULL) }
 
   if (!is.null(spatial_vars) && length(spatial_vars) > 0) {
     if (is.character(spatial_vars)) {

@@ -11,8 +11,8 @@ use_lakes   <- NULL
 
 # ---- build geo metadata ----
 # use station-renamed morph object so IDs match the combined dataset
-meta_geo <- data.frame(sample_data(ps_morph_by_station)) %>%
-  rownames_to_column("Sample_ID")
+meta_geo <- data.frame(sample_data(ps_morph_by_station))
+meta_geo$Sample_ID <- rownames(meta_geo)
 meta_geo <- filter_geo_metadata(meta_geo, c("Latitude", "Longitude"))
 meta_geo$Lake <- factor(meta_geo$Lake, levels = lake_order, ordered = TRUE)
 

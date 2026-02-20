@@ -9,26 +9,34 @@ outdir <- file.path(output_root, "ground_truth")
 use_ps_list <- ps_all_methods
 use_rank    <- "Species"
 
-# placeholder paths -- update when CSVs are ready
-trebitz_files <- list(
-  Superior = "data/trebitz_taxa_superior.csv",
-  Michigan = "data/trebitz_taxa_michigan.csv",
-  Huron    = "data/trebitz_taxa_huron.csv",
-  Erie     = "data/trebitz_taxa_erie.csv",
-  Ontario  = "data/trebitz_taxa_ontario.csv",
-  Overall  = "data/trebitz_taxa_overall.csv"
-)
+# trebitz data: single tab-delimited file with Species column and X markers per lake
+trebitz_file <- "/Volumes/Samsung_1TB/Zooplankton/Metagenomics/data/trebitz_lists/Trebitz_Zoops_2026_overall.csv"
+lake_cols <- c(Superior = "Superior", Michigan = "Michigan",
+               Huron = "Huron", Erie = "Erie", Ontario = "Ontario")
 
-# ---- load (skip missing files) ----
+# ---- load and split per-lake ----
 trebitz <- list()
-for (nm in names(trebitz_files)) {
-  fp <- trebitz_files[[nm]]
-  if (file.exists(fp)) {
-    trebitz[[nm]] <- load_trebitz(fp)
-    cat("loaded", nm, ":", nrow(trebitz[[nm]]), "taxa\n")
-  } else {
-    cat("not found:", fp, "- skipping\n")
+if (file.exists(trebitz_file)) {
+  raw <- read.delim(trebitz_file, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
+  # drop columns with empty or NA names (trailing tab artifact)
+  raw <- raw[, colnames(raw) != "" & !is.na(colnames(raw)), drop = FALSE]
+  cat("loaded trebitz file:", nrow(raw), "rows\n")
+
+  for (lk in names(lake_cols)) {
+    col <- lake_cols[[lk]]
+    if (col %in% colnames(raw)) {
+      lake_taxa <- raw %>% filter(.data[[col]] == "X") %>%
+        select(Species) %>% distinct()
+      trebitz[[lk]] <- lake_taxa
+      cat("  ", lk, ":", nrow(lake_taxa), "species\n")
+    }
   }
+
+  # overall = union of all species in the file
+  trebitz[["Overall"]] <- raw %>% select(Species) %>% distinct()
+  cat("  Overall:", nrow(trebitz[["Overall"]]), "species\n")
+} else {
+  cat("not found:", trebitz_file, "\n")
 }
 
 if (length(trebitz) == 0) {
