@@ -127,7 +127,7 @@ save_plot(p_lk, file.path(outdir, "figures", "alpha_boxplot_lake_by_marker.pdf")
           width = 16, height = 10)
 
 # concordance scatterplots
-scatter_plots <- compact(map(marker_pairs, function(pr) {
+scatter_plots <- purrr::compact(map(marker_pairs, function(pr) {
   df <- alpha_wide %>% filter(Metric == "Observed") %>%
     select(Sample_ID, Lake, all_of(pr)) %>% drop_na()
   if (nrow(df) < 3) return(NULL)

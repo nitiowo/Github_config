@@ -1,7 +1,7 @@
 # setup.R
 # load all data, build phyloseq objects, define palettes
 # source this at the top of every analysis script
-
+setwd("/Volumes/Samsung_1TB/Zooplankton/git_DBs/Github_config/testing/06_phyloseq")
 source("zoop_functions.R")
 set.seed(42)
 
@@ -27,10 +27,10 @@ tax_ranks <- c("Kingdom", "Phylum", "Class", "Order",
 alpha_metrics <- c("Observed", "InvSimpson")
 
 # -- load phyloseq objects --
-ps_folmer <- readRDS("setup_output/folmer_ps.RDS")
-ps_leray  <- readRDS("setup_output/leray_ps.RDS")
-ps_18S    <- readRDS("setup_output/ssu_ps.RDS")
-ps_morph  <- readRDS("setup_output/morph_ps.RDS")
+ps_folmer <- readRDS("/Volumes/Samsung_1TB/Zooplankton/Metagenomics/06_phyloseq/setup_output/folmer_ps.RDS")
+ps_leray  <- readRDS("/Volumes/Samsung_1TB/Zooplankton/Metagenomics/06_phyloseq/setup_output/leray_ps.RDS")
+ps_18S    <- readRDS("/Volumes/Samsung_1TB/Zooplankton/Metagenomics/06_phyloseq/setup_output/ssu_ps.RDS")
+ps_morph  <- readRDS("/Volumes/Samsung_1TB/Zooplankton/Metagenomics/06_phyloseq/setup_output/morph_ps.RDS")
 
 # set lake factor ordering on everything
 ps_folmer <- set_lake_order(ps_folmer, lake_order)

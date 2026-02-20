@@ -59,6 +59,19 @@ rsconnect/
 # Output files
 **/*.txt
 **/*.csv
+**/*VennDiagram*
+**/*.tsv
+**/*.log
+**/*.docx
+**/*.pdf
 
 # Old/deprecated
 **/*old*
+
+# Testing
+**/test_*
+**/*.testing*
+**/*testing_grounds
+
+# Markdown files
+**/*.md
