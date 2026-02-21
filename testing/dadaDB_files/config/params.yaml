@@ -9,13 +9,8 @@ n_outgroups_total: 200             # Total outgroups to sample
 random_seed: 42
 
 # ── Taxonomy resolution ─────────────────────────────────────
-taxize_db: "gbif"
-taxize_fallback_dbs:
-  - "worms"
-  - "itis"
-ncbi_api_key: "f89e812f94cad450bdefe6d08d0178e12708"
-batch_size: 200
-retry_attempts: 3
+# Path to cross-project master taxonomy list (leave empty "" to disable)
+master_taxonomy_path: "/Volumes/Samsung_1TB/Zooplankton/git_DBs/Github_config/testing/SILVA_scripts/03_taxonomy_fixed/master_taxonomy.csv"
 sleep_between_batches: 5
 
 # ── Clustering ───────────────────────────────────────────────

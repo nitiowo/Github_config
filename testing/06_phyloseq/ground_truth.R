@@ -10,14 +10,14 @@ use_ps_list <- ps_all_methods
 use_rank    <- "Species"
 
 # trebitz data: single tab-delimited file with Species column and X markers per lake
-trebitz_file <- "/Volumes/Samsung_1TB/Zooplankton/Metagenomics/data/trebitz_lists/Trebitz_Zoops_2026_overall.csv"
+trebitz_file <- "/Volumes/Samsung_1TB/Zooplankton/Metagenomics/data/trebitz_lists/Trebitz_Zoops_2026_overall_taxfixed.csv"
 lake_cols <- c(Superior = "Superior", Michigan = "Michigan",
                Huron = "Huron", Erie = "Erie", Ontario = "Ontario")
 
 # ---- load and split per-lake ----
 trebitz <- list()
 if (file.exists(trebitz_file)) {
-  raw <- read.delim(trebitz_file, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
+  raw <- read.csv(trebitz_file, stringsAsFactors = FALSE, check.names = FALSE)
   # drop columns with empty or NA names (trailing tab artifact)
   raw <- raw[, colnames(raw) != "" & !is.na(colnames(raw)), drop = FALSE]
   cat("loaded trebitz file:", nrow(raw), "rows\n")
