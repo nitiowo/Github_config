@@ -59,6 +59,11 @@ rsconnect/
 # Output files
 **/*.txt
 **/*.csv
+**/*output*
 
 # Old/deprecated
 **/*old*
+
+# Test files
+**/*testing_grounds*
+**/*test_SILVA*

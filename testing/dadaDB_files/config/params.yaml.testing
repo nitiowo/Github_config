@@ -1,0 +1,23 @@
+# ── Input files ──────────────────────────────────────────────
+database_format: "silva_notax"           # Options: "silva", "silva_notax", or "bold"
+input_primary: "00_raw/DADA2_EUK_SSU_v2.0.fasta"
+input_secondary: ""                # Optional: leave empty ("") to skip
+target_classes_file: "config/target_classes.txt"
+
+# ── Outgroup sampling ───────────────────────────────────────
+n_outgroups_total: 200             # Total outgroups to sample
+random_seed: 42
+
+# ── Taxonomy resolution ─────────────────────────────────────
+taxize_db: "gbif"
+taxize_fallback_dbs:
+  - "worms"
+  - "itis"
+ncbi_api_key: "f89e812f94cad450bdefe6d08d0178e12708"
+batch_size: 200
+retry_attempts: 3
+sleep_between_batches: 5
+
+# ── Clustering ───────────────────────────────────────────────
+vsearch_identity: 1.0
+vsearch_threads: 8
