@@ -242,10 +242,15 @@ resolve_gbif <- function(query_name, taxa_id) {
     return(NULL)
   }
 
+  # Ensure status column exists before filtering - some results omit it
+  if (!"status" %in% colnames(verbose_result)) {
+    message(sprintf("    [%s] GBIF verbose: no status column in result", taxa_id))
+    return(NULL)
+  }
+
   accepted <- verbose_result %>%
     filter(!is.na(.data$matchType),
            .data$matchType %in% c("EXACT", "HIGHERRANK"),
-           "status" %in% colnames(verbose_result),
            !is.na(.data$status),
            .data$status == "ACCEPTED") %>%
     arrange(desc(.data$matchType == "EXACT"), desc(.data$confidence))
@@ -290,13 +295,13 @@ MASTER_COLS <- c("query_name", TARGET_RANKS, "matchType", "confidence",
 #' Returns empty data.frame with correct column types if file doesn't exist.
 load_master <- function(path) {
   if (!is.null(path) && nzchar(path) && file.exists(path)) {
-    df <- read.csv(path, stringsAsFactors = FALSE)
+    df <- read.csv(path, stringsAsFactors = FALSE,
+                   colClasses = c(usageKey = "character", confidence = "numeric"))
     missing_cols <- setdiff(MASTER_COLS, colnames(df))
     if (length(missing_cols) > 0) df[missing_cols] <- NA_character_
     return(df)
   }
   # Build empty data.frame with explicit types to avoid bind_rows() coercion errors
-  # (matrix() produces logical columns when empty, which breaks bind_rows)
   char_cols <- setdiff(MASTER_COLS, "confidence")
   df <- as.data.frame(
     lapply(setNames(char_cols, char_cols), function(x) character(0)),
@@ -519,6 +524,17 @@ if (nrow(todo_df) == 0) {
     if (!resolved) {
       message(sprintf("  [%s] UNRESOLVED after all ranks", tid))
       append_log(tid, "EXHAUSTED", NA, NA, "all_ranks_failed", NA, NA, "unresolved")
+
+      # Retain original taxonomy if it fits within the 7-rank schema
+      # Fill from Kingdom downward - first original field -> Kingdom, etc.
+      orig_values <- rank_values[non_na_idx]
+      if (length(orig_values) <= 7) {
+        final_ranks[seq_along(orig_values)] <- orig_values
+        message(sprintf("  [%s] Retaining %d original field(s) in resolved output",
+                        tid, length(orig_values)))
+      } else {
+        message(sprintf("  [%s] >7 original fields - leaving resolved output as NA", tid))
+      }
     }
 
     # Save result immediately (incremental - supports resume)

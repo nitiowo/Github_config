@@ -4,6 +4,8 @@
 
 This directory contains a comprehensive phyloseq-based analysis pipeline for zooplankton biodiversity data from the Great Lakes. The pipeline processes multiple molecular markers (COI-Folmer, COI-Leray, 18S) alongside morphological identification data to compare community composition, diversity patterns, and taxonomic concordance across sampling methods and geographic locations.
 
+The analysis pipeline and its accompanying scripts are documented and organized to facilitate reproducibility and to allow traceability of analytical steps across runs and users.
+
 ## Main Analysis Files
 
 - **`setup.R`** - Loads phyloseq objects, defines palettes, and sets global parameters
