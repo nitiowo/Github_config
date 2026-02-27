@@ -2,29 +2,39 @@
 """
 Step 4: Rebuild corrected taxonomy FASTA files from resolved taxonomy.
 
-Uses output file 3 (resolved_taxonomy.csv) from Step 3 to look up
-corrected taxonomy for each accession, then writes:
+By default, uses output file 3 (resolved_taxonomy.csv) from Step 3 to look up
+corrected taxonomy for each accession.
 
+With --skiptaxonomy, skips Step 3 entirely and parses taxonomy directly from
+the FASTA headers produced by Step 2 (expected format:
+  >ACCESSION Kingdom;Phylum;Class;Order;Family;Genus;Species).
+
+Outputs:
   Output 5: dada2_with_accession.fasta
       >ACCESSION Kingdom;Phylum;Class;Order;Family;Genus;Species
-      ACGT...
 
   Output 6: dada2_assignTaxonomy.fasta
       >Kingdom;Phylum;Class;Order;Family;Genus;Species;
-      ACGT...
 
   Output 7: dada2_assignTaxonomy_genus.fasta
       >Kingdom;Phylum;Class;Order;Family;Genus;
-      ACGT...
 
 Usage:
     python 04_format_dada2.py
+    python 04_format_dada2.py --skiptaxonomy
 """
 
+import argparse
 import csv
 import sys
 from pathlib import Path
 from Bio import SeqIO
+
+# ── Arguments ────────────────────────────────────────────────
+parser = argparse.ArgumentParser()
+parser.add_argument("--skiptaxonomy", action="store_true",
+                    help="Parse taxonomy from FASTA headers instead of resolved_taxonomy.csv")
+args = parser.parse_args()
 
 # ── Paths ─────────────────────────────────────────────────────
 input_fasta       = "02_outgroups/combined_with_outgroups.fasta"
@@ -41,32 +51,41 @@ RANK_COLS  = ["Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species
 GENUS_COLS = RANK_COLS[:6]  # Up to Genus
 
 # ═══════════════════════════════════════════════════════════════
-# 1. BUILD ACCESSION → CORRECTED TAXONOMY LOOKUP
+# 1. BUILD ACCESSION → TAXONOMY LOOKUP
 # ═══════════════════════════════════════════════════════════════
 
-print("Loading resolved taxonomy...")
-
-# Read resolved_taxonomy.csv and expand accession lists
-# Each row has: taxa_id, Kingdom..Species, source_db, accessions (pipe-delimited)
 acc_to_ranks = {}  # accession → dict of rank values
 
-with open(resolved_csv, newline="") as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        # Split pipe-delimited accession list
-        accessions = row["accessions"].split("|")
-        
-        # Build rank dict for this taxa_id
-        ranks = {}
-        for r in RANK_COLS:
-            val = row.get(r, "").strip()
-            ranks[r] = val if val and val != "NA" else "NA"
-        
-        # Map every accession to these ranks
-        for acc in accessions:
-            acc = acc.strip()
-            if acc:
-                acc_to_ranks[acc] = ranks
+if args.skiptaxonomy:
+    # Parse taxonomy directly from FASTA headers
+    # Expected header format: >ACCESSION Kingdom;Phylum;Class;Order;Family;Genus;Species
+    print("Loading taxonomy from FASTA headers (--skiptaxonomy mode)...")
+    for record in SeqIO.parse(input_fasta, "fasta"):
+        acc = record.id
+        # Header description is everything after the first space
+        desc = record.description[len(acc):].strip()
+        parts = [p.strip() for p in desc.split(";")]
+        # Pad or trim to exactly 7 ranks
+        parts = parts[:7]
+        while len(parts) < 7:
+            parts.append("NA")
+        ranks = {r: (v if v else "NA") for r, v in zip(RANK_COLS, parts)}
+        acc_to_ranks[acc] = ranks
+else:
+    # Load corrected taxonomy from resolved_taxonomy.csv
+    print("Loading resolved taxonomy from CSV...")
+    with open(resolved_csv, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            accessions = row["accessions"].split("|")
+            ranks = {}
+            for r in RANK_COLS:
+                val = row.get(r, "").strip()
+                ranks[r] = val if val and val != "NA" else "NA"
+            for acc in accessions:
+                acc = acc.strip()
+                if acc:
+                    acc_to_ranks[acc] = ranks
 
 print(f"Loaded taxonomy for {len(acc_to_ranks):,} accessions")
 
@@ -114,9 +133,11 @@ with open(file_with_acc, "w") as out5, \
 # 3. LOG
 # ═══════════════════════════════════════════════════════════════
 
+tax_source = "FASTA headers (--skiptaxonomy)" if args.skiptaxonomy else "resolved_taxonomy.csv"
 summary = (
-    f"Sequences written:              {written:,}\n"
-    f"Skipped (not in resolved table): {skipped:,}\n"
+    f"Taxonomy source:                 {tax_source}\n"
+    f"Sequences written:               {written:,}\n"
+    f"Skipped (no taxonomy found):     {skipped:,}\n"
     f"\nOutput files:\n"
     f"  5. With accession:    {file_with_acc}\n"
     f"  6. assignTaxonomy:    {file_assign_tax}\n"
